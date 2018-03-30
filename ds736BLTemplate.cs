@@ -625,6 +625,11 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         move = true;
     }
 
+    private void OnDestroy()
+    {
+        networkInstance.OnApplicationQuit();
+    }
+
     void OnApplicationQuit()
     {
         networkInstance.OnApplicationQuit();
