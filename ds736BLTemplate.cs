@@ -366,12 +366,13 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
             // Go to team mate you can see
             case "2":
-                if (!repeatedMessage) GoToFriendly();
+
                 if (!FriendlySpotted())
                 {
                     completeMove = true;
                     return;
                 }
+                if (!repeatedMessage) GoToFriendly();
                 if (!repeatedMessage) prevNodeCount = NavAgent.pathGenerated.Count;
                 if (prevNodeCount == 1)
                 {
@@ -439,6 +440,10 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             
             // Look at enemy
             case "6":
+                if (!EnemiesSpotted()) { 
+                    completeMove = true;
+                    return;
+                }
                 LookAtEnemy();
                 //Reset straight away as its a 1 frame action
                 completeMove = true;
@@ -446,12 +451,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
             // Look at enemy flag
             case "7":
-                MovetoFlag();
                 if (!EnemyTeamFlagInSight())
                 {
                     completeMove = true;
                     return;
                 }
+                MovetoFlag();
                 break;
 
             // Do nothing
