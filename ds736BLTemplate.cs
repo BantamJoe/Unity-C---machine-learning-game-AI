@@ -24,6 +24,8 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private int moveCounter = 0;
     private bool completeAction = true;
     private bool completeMove = true;
+    private bool sentCompleteAction = false;
+    private bool sentCompleteMove = false;
     private int completeCounter = 0;
     private int prevNodeCount;
 
@@ -509,6 +511,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 {
                     moveCounter = 0;
                     completeMove = false;
+                    sentCompleteMove = false;
                 }
                 ActOnMoveMessage(splitMessage[1], repeatedMessage);
                 break;
@@ -518,6 +521,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 {
                     actionCounter = 0;
                     completeAction = false;
+                    sentCompleteAction = false;
                 }
                 ActOnActionMessage(splitMessage[1], repeatedMessage);
                 break;
@@ -571,9 +575,9 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             }
             else
             {
-                ActOnMessage(prevMoveMess, true);
-                ActOnMessage(prevActionMess, true);
                 if (knownIsDead) break;
+                if (!completeMove) ActOnMessage(prevMoveMess, true);
+                if (!completeAction) ActOnMessage(prevActionMess, true);
                 /*
                 if (!completedAction)
                 {
@@ -594,16 +598,18 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
         }
 
-        if (completeAction)
+        if (completeAction && !sentCompleteAction)
         {
             //send complete action
             networkInstance.SendData("COMPLETE action");
+            sentCompleteAction = true;
         }
         
-        if (completeMove)
+        if (completeMove && !sentCompleteMove)
         {
             //send complete action
             networkInstance.SendData("COMPLETE move");
+            sentCompleteMove = true;
         }
 
         teamCol = teamCol ?? GetColorString();
