@@ -25,6 +25,8 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private bool completeAction = true;
     private bool completeMove = true;
     private int completeCounter = 0;
+    private int prevNodeCount;
+
 
     private bool knownIsDead = false;
     private bool knownTookDamageRecently = false;
@@ -309,19 +311,22 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
     private void ActOnMoveMessage(string message, bool repeatedMessage)
     {
+        int afterNodeCount;
         switch (message)
         {
             // Go to enemy base
             case "0":
-                if (!repeatedMessage)SetPathToEnemyBase();
-                if (NavAgent.pathGenerated.Count == 0)
+                if (!repeatedMessage) SetPathToEnemyBase();
+                if (!repeatedMessage) prevNodeCount = NavAgent.pathGenerated.Count;
+                if (prevNodeCount == 1 || NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
                     return;
                 }
                 LookAtNextNavPoint();
                 MoveToNextNode();
-                if (NavAgent.pathGenerated.Count == 0)
+                afterNodeCount = NavAgent.pathGenerated.Count;
+                if (afterNodeCount == prevNodeCount - 2 || NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
                     return;
@@ -330,7 +335,13 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
             // Go to home base
             case "1":
-                if (!repeatedMessage)NavigateToBase();
+                if (!repeatedMessage) NavigateToBase();
+                if (!repeatedMessage) prevNodeCount = NavAgent.pathGenerated.Count;
+                if (prevNodeCount == 1)
+                {
+                    completeMove = true;
+                    return;
+                }
                 if (NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
@@ -338,6 +349,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 }
                 LookAtNextNavPoint();
                 MoveToNextNode();
+                afterNodeCount = NavAgent.pathGenerated.Count;
+                if (afterNodeCount == prevNodeCount - 2)
+                {
+                    completeMove = true;
+                    return;
+                }
                 if (NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
@@ -353,6 +370,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                     completeMove = true;
                     return;
                 }
+                if (!repeatedMessage) prevNodeCount = NavAgent.pathGenerated.Count;
+                if (prevNodeCount == 1)
+                {
+                    completeMove = true;
+                    return;
+                }
                 if (NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
@@ -360,6 +383,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 }
                 LookAtNextNavPoint();
                 MoveToNextNode();
+                afterNodeCount = NavAgent.pathGenerated.Count;
+                if (afterNodeCount == prevNodeCount - 2)
+                {
+                    completeMove = true;
+                    return;
+                }
                 if (NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
@@ -370,6 +399,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             // Go to random location
             case "3":
                 if (!repeatedMessage) SetPathToRandom();
+                if (!repeatedMessage) prevNodeCount = NavAgent.pathGenerated.Count;
+                if (prevNodeCount == 1)
+                {
+                    completeMove = true;
+                    return;
+                }
                 if (NavAgent.pathGenerated.Count == 0)
                 {
                     completeMove = true;
@@ -377,6 +412,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 }
                 LookAtNextNavPoint();
                 MoveToNextNode();
+                afterNodeCount = NavAgent.pathGenerated.Count;
+                if (afterNodeCount == prevNodeCount - 2)
+                {
+                    completeMove = true;
+                    return;
+                }
                 //if (NavAgent.pathGenerated.Count == 0) ResetParameters();
                 break;
 
@@ -417,8 +458,6 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 if (moveCounter >= 50) completeMove = true;
                 return;
         }
-        moveCounter++;
-        if (moveCounter >= 300) completeMove = true;
     }
 
     private void ActOnActionMessage(string message, bool repeatedMessage)
