@@ -316,14 +316,14 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 if (!repeatedMessage)SetPathToEnemyBase();
                 if (NavAgent.pathGenerated.Count == 0)
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
                 LookAtNextNavPoint();
                 MoveToNextNode();
                 if (NavAgent.pathGenerated.Count == 0)
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
                 break;
@@ -333,28 +333,38 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 if (!repeatedMessage)NavigateToBase();
                 if (NavAgent.pathGenerated.Count == 0)
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
                 LookAtNextNavPoint();
                 MoveToNextNode();
                 if (NavAgent.pathGenerated.Count == 0)
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
                 break;
 
             // Go to team mate you can see
             case "2":
-                GoToFriendly();
+                if (!repeatedMessage) GoToFriendly();
                 if (!FriendlySpotted())
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
-                moveCounter++;
-                if (moveCounter >= 30) ResetParameters(2);
+                if (NavAgent.pathGenerated.Count == 0)
+                {
+                    completeMove = true;
+                    return;
+                }
+                LookAtNextNavPoint();
+                MoveToNextNode();
+                if (NavAgent.pathGenerated.Count == 0)
+                {
+                    completeMove = true;
+                    return;
+                }
                 return;
 
             // Go to random location
@@ -362,7 +372,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 if (!repeatedMessage) SetPathToRandom();
                 if (NavAgent.pathGenerated.Count == 0)
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
                 LookAtNextNavPoint();
@@ -374,21 +384,21 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             case "4":
                 RotateAround();
                 moveCounter++;
-                if (moveCounter >= 4) ResetParameters(2);
+                if (moveCounter >= 4) completeMove = true;
                 return;
 
             // Look at damage
             case "5":
                 LookAtDamage();
                 //Reset straight away as its a 1 frame action
-                ResetParameters(2);
+                completeMove = true;
                 return;
             
             // Look at enemy
             case "6":
                 LookAtEnemy();
                 //Reset straight away as its a 1 frame action
-                ResetParameters(2);
+                completeMove = true;
                 return;
 
             // Look at enemy flag
@@ -396,7 +406,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 MovetoFlag();
                 if (!EnemyTeamFlagInSight())
                 {
-                    ResetParameters(2);
+                    completeMove = true;
                     return;
                 }
                 break;
@@ -404,11 +414,11 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             // Do nothing
             case "8":
                 moveCounter++;
-                if (moveCounter >= 10) ResetParameters(2);
+                if (moveCounter >= 50) completeMove = true;
                 return;
         }
         moveCounter++;
-        if (moveCounter >= 100) ResetParameters(2);
+        if (moveCounter >= 300) completeMove = true;
     }
 
     private void ActOnActionMessage(string message, bool repeatedMessage)
@@ -422,7 +432,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 {
                     SendReward(reward);
                 }
-                if (!EnemiesSpotted()) ResetParameters(1);
+                if (!EnemiesSpotted()) completeAction = true;
                 break;
             
             // Shoot enemy with lowest heatlh
@@ -432,19 +442,19 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 {
                     SendReward(reward2);
                 }
-                if (!EnemiesSpotted()) ResetParameters(1);
+                if (!EnemiesSpotted()) completeAction = true;
                 break;
 
             // Pick up flag
             case "2":
                 GrabEnemyTeamFlag();
-                if (!EnemyTeamFlagInSight()) ResetParameters(1);
+                if (!EnemyTeamFlagInSight()) completeAction = true;
                 break;
 
             // Do nothing
             case "3":
                 actionCounter++;
-                if (actionCounter >= 10) ResetParameters(1);
+                if (actionCounter >= 10) completeAction = true;
                 break;
         }
     }
@@ -456,10 +466,20 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         {
             case "MOVE_ACTION":
                 prevMoveMess = message;
+                if (!repeatedMessage)
+                {
+                    moveCounter = 0;
+                    completeMove = false;
+                }
                 ActOnMoveMessage(splitMessage[1], repeatedMessage);
                 break;
             case "ACTION_ACTION":
                 prevActionMess = message;
+                if (!repeatedMessage)
+                {
+                    actionCounter = 0;
+                    completeAction = false;
+                }
                 ActOnActionMessage(splitMessage[1], repeatedMessage);
                 break;
         }
@@ -511,6 +531,9 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             }
             else
             {
+                ActOnMessage(prevMoveMess, true);
+                ActOnMessage(prevActionMess, true);
+                /*
                 if (!completedAction)
                 {
                     //Debug.Log(prevMoveMess);
@@ -525,11 +548,23 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 {
                     prevState = "";
                     completedAction = false;
-                }                
+                }*/                
             }
 
         }
+
+        if (completeAction)
+        {
+            //send complete action
+            networkInstance.SendData("COMPLETE action");
+        }
         
+        if (completeMove)
+        {
+            //send complete action
+            networkInstance.SendData("COMPLETE move");
+        }
+
         teamCol = teamCol ?? GetColorString();
 
         if (!move)
