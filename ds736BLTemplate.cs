@@ -560,6 +560,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             {
                 ResetParameters(1);
                 ResetParameters(2);
+                if (knownIsDead) break;
                 completedAction = false;
                 ActOnMessage(mess);
                 //Debug.Log(mess);
@@ -572,6 +573,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             {
                 ActOnMessage(prevMoveMess, true);
                 ActOnMessage(prevActionMess, true);
+                if (knownIsDead) break;
                 /*
                 if (!completedAction)
                 {
