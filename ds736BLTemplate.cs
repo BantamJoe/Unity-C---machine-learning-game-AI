@@ -303,8 +303,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         // Any enemy soldiers in sight?
         if (friendlySoldier != null)
         {
-            LookAt(friendlySoldier.GetLocation());
-            MoveTowards(friendlySoldier.GetLocation());
+            NavAgent.TargetCell = GridManager.instance.FindClosestCell(friendlySoldier.GetLocation());
         }
     }
 
