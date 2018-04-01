@@ -41,7 +41,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private int deathReward = -5;
     private int tookDamageReward = -1;
 
-
+    /*
+     * Function: MovetoFlag
+     * ----------------------------
+     *   A method for moving to the enemy flag, if it is in sight
+     * 
+     */
     public void MovetoFlag()
     {
         if (!EnemyTeamFlagInSight()) return;
@@ -49,16 +54,40 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         MoveTowards(EnemyFlagInSight.GetLocation());
     }
 
+    /*
+     * Function: FriendlyTeamFlagInSight
+     * ----------------------------
+     *   A method to check if the friendly flag is in sight
+     * 
+     *   return: a boolean saying if the friendly flag is in sight
+     * 
+     */
     public bool FriendlyTeamFlagInSight()
     {
         return FriendlyFlagInSight != null;
     }
 
+    /*
+     * Function: FriendlySpotted
+     * ----------------------------
+     *   A method to check if there are any friendlies within the sight of the agent
+     * 
+     *   return: a boolean saying if there are any friendlies within the sight of the agent
+     * 
+     */
     public bool FriendlySpotted()
     {
         return FriendlyAgentsInSight.Count > 0;
     }
 
+    /*
+     * Function: ShootEnemiesInSightWReward
+     * ----------------------------
+     *   Attempts to shoot the first enemy in sight, and returns reward for killing them
+     * 
+     *   return: a integer being the reward value of the action
+     * 
+     */
     public int ShootEnemiesInSightWReward()
     {
         if (!EnemiesSpotted())
@@ -75,13 +104,21 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                 Shoot();
                 if (targetSoldier.IsDead())
                 {
-                    return 2;
+                    return killEnemyReward;
                 }
             }
         }
         return 0;
     }
 
+    /*
+     * Function: ShootLowestHealthEnemiesInSightWReward
+     * ----------------------------
+     *   Attempts to shoot the enemy with the lowest health in sight, and returns reward for killing them
+     * 
+     *   return: a integer being the reward value of the action
+     * 
+     */
     public int ShootLowestHealthEnemiesInSightWReward()
     {
         if (!EnemiesSpotted())
@@ -105,24 +142,48 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             Shoot();
             if (lowestHealthSoldier.IsDead())
             {
-                return 2;
+                return killEnemyReward;
             }
         }
 
         return 0;
     }
 
+    /*
+     * Function: GetAgentHealth
+     * ----------------------------
+     *   A method to get the health of the agent
+     * 
+     *   return: a integer representing the health of the agent
+     * 
+     */
     public int GetAgentHealth()
     {
         return Health;
     }
 
+    /*
+     * Function: GetAgentLowHealth
+     * ----------------------------
+     *   Checks if the agent has low health or not
+     * 
+     *   return: a boolean of if the agent has low health
+     * 
+     */
     public bool GetAgentLowHealth()
     {
         if (GetAgentHealth() <= lowHealth) return true;
         return false;
     }
 
+    /*
+     * Function: GetLowestHealthEnemy
+     * ----------------------------
+     *   A method to get the health of the lowest health enemy within sight
+     * 
+     *   return: a integer of the health of the lowest health enemy within sight
+     * 
+     */
     public int GetLowestHealthEnemy()
     {
         if (!EnemiesSpotted())
@@ -137,6 +198,14 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         return lowestHealth;
     }
 
+    /*
+     * Function: GetEnemyHealthInSight
+     * ----------------------------
+     *   A function to get the total health of all enemies within sight
+     * 
+     *   return: a integer of the total health of all enemies within sight
+     * 
+     */
     public int GetEnemyHealthInSight()
     {
         if (!EnemiesSpotted())
@@ -152,28 +221,66 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         return totalHealth;
     }
 
+    /*
+     * Function: TotalEnemyHealthHigherThanAgent
+     * ----------------------------
+     *   A method to check if the total health of all enemies in sight is higher than the agents health
+     * 
+     *   return: a boolean that checks if the total health of all enemies in sight is higher than the agents health
+     * 
+     */
     public bool TotalEnemyHealthHigherThanAgent()
     {
         if (GetEnemyHealthInSight() > GetAgentHealth()) return true;
         return false;
     }
 
+    /*
+     * Function: LowestHealthEnemyHigherThanAgent
+     * ----------------------------
+     *   A method that checks if the lowest health enemy in sight, has more health than the agent
+     * 
+     *   return: a boolean if the lowest health enemy in sight, has more health than the agent
+     * 
+     */
     public bool LowestHealthEnemyHigherThanAgent()
     {
         if (GetLowestHealthEnemy() > GetAgentHealth()) return true;
         return false;
     }
 
+    /*
+     * Function: NumbEnemiesSpotted
+     * ----------------------------
+     *   A method to get the number of enemies in sight
+     * 
+     *   return: a integer of the number of enemies in sight
+     * 
+     */
     public int NumbEnemiesSpotted()
     {
         return EnemyAgentsInSight.Count;
     }
 
+    /*
+     * Function: NavigateToBase
+     * ----------------------------
+     *   Creates a navigation pathway to the friendly base
+     * 
+     */
     public void NavigateToBase()
     {
         NavAgent.TargetCell = GridManager.instance.FindClosestCell(SpawnLocation);
     }
 
+    /*
+     * Function: GetColorString
+     * ----------------------------
+     *   Gets the team colour of the agent. HAS TO READ THE TEXTURE COLOUR NANE, SINCE COLOUR NOT EXPOSED.
+     * 
+     *   return: a string representing the colour of the team of the agent
+     * 
+     */
     public string GetColorString()
     {
         GameObject soldierCharacter = gameObject.transform.Find("soldierCharacter").gameObject;
@@ -196,6 +303,14 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
+    /*
+     * Function: GetState
+     * ----------------------------
+     *   A method to get the current state of the game, which is then transmitted to the server
+     * 
+     *   return: a string containing the current state of the game
+     * 
+     */
     private string GetState()
     {
         string state = "";
@@ -215,17 +330,30 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         return state;
     }
 
+    /*
+     * Function: SendReward
+     * ----------------------------
+     *   Sends the reward to the server
+     * 
+     *   reward: A integer representing the reward for an action
+     * 
+     */
     private void SendReward(int reward)
     {
         //Get current state
         string state = GetState();
 
         prevState = state;
-
         //Send reward and state
         networkInstance.SendData("REWARD "+ reward.ToString() + " " + state);
     }
 
+    /*
+     * Function: SendState
+     * ----------------------------
+     *   Sends the current state of the game to the server
+     * 
+     */
     private void SendState()
     {
         //Get current state
@@ -238,6 +366,14 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         networkInstance.SendData("STATE " + state);
     }
 
+    /*
+     * Function: GetScore
+     * ----------------------------
+     *   A method that gets the current score of the game
+     * 
+     *   return: a string of the current score
+     * 
+     */
     private string GetScore()
     {
         string score = "";
@@ -245,11 +381,11 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         
         string red_score = GameObject.Find("A").GetComponent<Text>().text;
         red_score = red_score.Split(new[] { "\r\n", "\r", "\n" },
-        StringSplitOptions.None)[1].Split(' ')[1];
+                                    StringSplitOptions.None)[1].Split(' ')[1];
 
         string blue_score = GameObject.Find("B").GetComponent<Text>().text;
         blue_score = blue_score.Split(new[] { "\r\n", "\r", "\n" },
-        StringSplitOptions.None)[1].Split(' ')[1];
+                                    StringSplitOptions.None)[1].Split(' ')[1];
 
         if (teamCol == "Red")
         {
@@ -265,6 +401,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         return score;
     }
 
+    /*
+     * Function: SendScore
+     * ----------------------------
+     *   Sends the score, if it has changed, to the server
+     * 
+     */
     private void SendScore()
     {
         //Get current score
@@ -280,11 +422,23 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         networkInstance.SendData("SCORE " + score + " " + state);
     }
 
+    /*
+     * Function: RotateAround
+     * ----------------------------
+     *   A method to rotate the agent around
+     * 
+     */
     private void RotateAround()
     {
         transform.Rotate(0.0f, 90.0f, 0.0f);
     }
 
+    /*
+     * Function: LookAtEnemy
+     * ----------------------------
+     *   A method to have the agent look at an enemy if they see one
+     * 
+     */
     public void LookAtEnemy()
     {
         if (!EnemiesSpotted())
@@ -298,6 +452,12 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
+    /*
+     * Function: GoToFriendly
+     * ----------------------------
+     *   A method to navigate to the first enemy in sight
+     * 
+     */
     public void GoToFriendly()
     {
         if (!FriendlySpotted())
@@ -311,6 +471,15 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
+    /*
+     * Function: ActOnMoveMessage
+     * ----------------------------
+     *   A method to act on a movement message from the server
+     * 
+     *   message: A string of the message recieved from the server
+     *   repeatedMessage: A boolean saying if this is a reapeated action
+     *
+     */
     private void ActOnMoveMessage(string message, bool repeatedMessage)
     {
         int afterNodeCount;
@@ -421,7 +590,6 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                     completeMove = true;
                     return;
                 }
-                //if (NavAgent.pathGenerated.Count == 0) ResetParameters();
                 break;
 
             // Rotate around
@@ -467,6 +635,15 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
+    /*
+     * Function: ActOnActionMessage
+     * ----------------------------
+     *   A method to act on an action message from the server
+     * 
+     *   message: A string of the message recieved from the server
+     *   repeatedMessage: A boolean saying if this is a reapeated action
+     *
+     */
     private void ActOnActionMessage(string message, bool repeatedMessage)
     {
         switch (message)
@@ -505,6 +682,15 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
+    /*
+     * Function: ActOnMessage
+     * ----------------------------
+     *   A method that looks at what type of message was recieved from the server and acts upon it
+     * 
+     *   message: A string of the message recieved from the server
+     *   repeatedMessage: A boolean saying if this is a reapeated action (Default: False)
+     *
+     */
     private void ActOnMessage(string message, bool repeatedMessage = false)
     {
         string[] splitMessage = message.Split(null);
@@ -553,9 +739,17 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
+    /*
+     * Function: Update
+     * ----------------------------
+     *   The main function that acts on a new message from server,
+     *   otherwise it sill it will act upon the previous message recieved.
+     *   Then, if the state changes, it will send a new state to the server
+     * 
+     */
     public void Update()
     {
-        string message = networkInstance.checkForServerUpdate();
+        string message = networkInstance.CheckForServerUpdate();
         //check if any message from server (updated Q matrix)
         //if so update known Qmatrix
         //Do action based on Qmatrix
@@ -599,6 +793,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
                     prevState = "";
                     completedAction = false;
                 }*/                
+                if (!completeAction) ActOnMessage(prevActionMess, true);              
             }
 
         }
@@ -669,19 +864,37 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         //Move(vector3);
     }
 
+    /*
+     * Function: Start
+     * ----------------------------
+     *   Spawns the agent, establishes a connection to the server,
+     *   then starts the agent moving
+     * 
+     */
     public new void Start()
     {
         base.Start();
-
         networkInstance.ConnectToServer();
         move = true;
     }
 
+    /*
+     * Function: OnDestroy
+     * ----------------------------
+     *   Ends the connection to the server if the agent is destoyed
+     * 
+     */
     private void OnDestroy()
     {
         networkInstance.OnApplicationQuit();
     }
 
+    /*
+     * Function: OnApplicationQuit
+     * ----------------------------
+     *   Ends the connection to the server if the application is quit
+     * 
+     */
     void OnApplicationQuit()
     {
         networkInstance.OnApplicationQuit();

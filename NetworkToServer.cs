@@ -21,7 +21,15 @@ public class NetworkToServer {
 
     System.Net.Sockets.TcpClient socket = new System.Net.Sockets.TcpClient();
 
-    public string checkForServerUpdate()
+    /*
+     * Function: CheckForServerUpdate
+     * ----------------------------
+     *   Checks if there has been any messages from the server
+     * 
+     *   return: a string containing the message from the server, else returns empty string
+     * 
+     */
+    public string CheckForServerUpdate()
     {
         //check if any message from server (updated Q matrix)
         //if so update known Qmatrix
@@ -41,6 +49,12 @@ public class NetworkToServer {
         //Do action based on Qmatrix
     }
 
+    /*
+     * Function: RecieveFromServer
+     * ----------------------------
+     *   Recieves data from the server, and pushes into a queue for it to be processed later
+     * 
+     */
     public void RecieveFromServer()
     {
         try
@@ -66,6 +80,12 @@ public class NetworkToServer {
 
     }
 
+    /*
+     * Function: ConnectToServer
+     * ----------------------------
+     *   Establishes a connection to the server, and starts recieving on a seperate thread
+     * 
+     */
     public void ConnectToServer()
     {
         System.Net.IPAddress ip = IPAddress.Parse(ServerIP);
@@ -75,6 +95,14 @@ public class NetworkToServer {
         t.Start();
     }
 
+    /*
+     * Function: SendData
+     * ----------------------------
+     *   Transmits data to the server
+     * 
+     *   message: The message that will be transmitted to the server
+     * 
+     */
     public void SendData(string message)
     {
         NetworkStream serverStream = socket.GetStream();
@@ -85,6 +113,12 @@ public class NetworkToServer {
 
     }
 
+    /*
+     * Function: OnApplicationQuit
+     * ----------------------------
+     *   Called when application finishes, then closes any established socket connection
+     * 
+     */
     public void OnApplicationQuit()
     {
         exchangeStopRequested = true;
