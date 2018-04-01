@@ -719,26 +719,6 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         }
     }
 
-    private void ResetParameters(int actionType = 0)
-    {
-        
-        if (actionType == 1)
-        {//If action action
-            completeAction = true;
-        }
-        else if (actionType == 2)
-        {// If move action
-            completeMove = true;
-        }
-        if (completeAction && completeMove) { 
-            completedAction = true;
-            moveCounter = 0;
-            actionCounter = 0;
-            completeAction = false;
-            completeMove = false;
-        }
-    }
-
     /*
      * Function: Update
      * ----------------------------
@@ -761,38 +741,14 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
             if (mess != "")
             {
-                ResetParameters(1);
-                ResetParameters(2);
                 if (knownIsDead) break;
                 completedAction = false;
                 ActOnMessage(mess);
-                //Debug.Log(mess);
-
-                //prevMess = mess;
-                //Debug.Log(mess);
-                //Debug.Log(mess.Length);
             }
             else
             {
                 if (knownIsDead) break;
                 if (!completeMove) ActOnMessage(prevMoveMess, true);
-                if (!completeAction) ActOnMessage(prevActionMess, true);
-                /*
-                if (!completedAction)
-                {
-                    //Debug.Log(prevMoveMess);
-                    //Dont act as you are dead
-                    if (knownIsDead) break;
-                    //Debug.Log("prev move message");
-                    //Debug.Log(prevMoveMess);
-                    ActOnMessage(prevMoveMess, true);
-                    ActOnMessage(prevActionMess, true);
-                }
-                else
-                {
-                    prevState = "";
-                    completedAction = false;
-                }*/                
                 if (!completeAction) ActOnMessage(prevActionMess, true);              
             }
 
