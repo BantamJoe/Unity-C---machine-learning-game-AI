@@ -346,7 +346,6 @@ public class ds736BLTemplate : BasicBehaviourLibrary
         //Get current state
         state += EnemyTeamFlagInSight().ToString();
         state += " " + FriendlyTeamFlagInSight().ToString();
-        //state += " " + LocationLastIncomingFire.ToString("G4");
         state += " " + IsDamaged.ToString();
         state += " " + HasFlag.ToString();
         state += " " + IsDead.ToString();
