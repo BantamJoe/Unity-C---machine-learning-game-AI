@@ -304,6 +304,27 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     }
 
     /*
+     * Function: IsMyTeamWinning
+     * ----------------------------
+     *   A method to return a boolean if the agents team is winning or not
+     * 
+     *   return: a boolean if the agents team is winning or not
+     * 
+     */
+    private bool IsMyTeamWinning()
+    {
+        bool winning = false;
+
+        if (GetMyTeamScore() > GetEnemyTeamScore())
+        {
+            winning = true;
+        }
+
+        return winning;
+    }
+
+
+    /*
      * Function: GetState
      * ----------------------------
      *   A method to get the current state of the game, which is then transmitted to the server
@@ -327,6 +348,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         state += " " + GetAgentLowHealth().ToString();
         state += " " + LowestHealthEnemyHigherThanAgent().ToString();
         state += " " + TotalEnemyHealthHigherThanAgent().ToString();
+        //state += " " + IsMyTeamWinning().ToString();
         return state;
     }
 
@@ -401,6 +423,71 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         return score;
     }
 
+    /*
+     * Function: GetMyTeamScore
+     * ----------------------------
+     *   A method that gets the current score of the team the agent is on
+     * 
+     *   return: a int of the current score of the team the agent is on
+     * 
+     */
+    private int GetMyTeamScore()
+    {
+        int teamScore = 0;
+        //Get current score
+
+        string red_score = GameObject.Find("A").GetComponent<Text>().text;
+        red_score = red_score.Split(new[] { "\r\n", "\r", "\n" },
+                                    StringSplitOptions.None)[1].Split(' ')[1];
+
+        string blue_score = GameObject.Find("B").GetComponent<Text>().text;
+        blue_score = blue_score.Split(new[] { "\r\n", "\r", "\n" },
+                                    StringSplitOptions.None)[1].Split(' ')[1];
+
+        if (teamCol == "Red")
+        {
+            teamScore = Int32.Parse(red_score);
+        }
+        else if (teamCol == "Blue")
+        {
+            teamScore = Int32.Parse(blue_score);
+        }
+
+        return teamScore;
+    }
+
+    /*
+     * Function: GetEnemyTeamScore
+     * ----------------------------
+     *   A method that gets the current score of the opposing team of the agent
+     * 
+     *   return: a int of the current score of the enemy team of the agent
+     * 
+     */
+    private int GetEnemyTeamScore()
+    {
+        int teamScore = 0;
+        //Get current score
+
+        string red_score = GameObject.Find("A").GetComponent<Text>().text;
+        red_score = red_score.Split(new[] { "\r\n", "\r", "\n" },
+                                    StringSplitOptions.None)[1].Split(' ')[1];
+
+        string blue_score = GameObject.Find("B").GetComponent<Text>().text;
+        blue_score = blue_score.Split(new[] { "\r\n", "\r", "\n" },
+                                    StringSplitOptions.None)[1].Split(' ')[1];
+
+        if (teamCol == "Red")
+        {
+            teamScore = Int32.Parse(blue_score);
+        }
+        else if (teamCol == "Blue")
+        {
+            teamScore = Int32.Parse(red_score);
+        }
+
+        return teamScore;
+    }
     /*
      * Function: SendScore
      * ----------------------------
@@ -811,13 +898,8 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
             knownTookDamageRecently = false;
         }
 
-        
-
         //check if update to known states
         SendState();
-
-        //Vector3 vector3 = new Vector3(10.0f, 20.0f, 30.0f);
-        //Move(vector3);
     }
 
     /*
