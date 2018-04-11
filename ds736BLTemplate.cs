@@ -33,6 +33,8 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private bool knownIsDead = false;
     private bool knownTookDamageRecently = false;
     private bool knownHasFlag = false;
+    private bool knownSeenFlag = false;
+    private bool knownEnemyFlagTaken = false;
 
     private int lowHealth = 30;
 
@@ -40,6 +42,7 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private int pickUpFlagReward = 3;
     private int deathReward = -5;
     private int tookDamageReward = -1;
+    private int seeFlagReward = 1;
 
     /*
      * Function: MovetoFlag
@@ -878,6 +881,23 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
         //Dont say if see enemy, since dead
         if (knownIsDead) return;
+
+        //Update if thought enemy flag wasnt taken, but actually is
+        if (!knownEnemyFlagTaken && EnemyFlagTaken)
+        {
+            knownEnemyFlagTaken = true;
+        }
+
+        //If seen flag for first time since a pickup then give reward
+        if (!knownSeenFlag && EnemyTeamFlagInSight())
+        {
+            knownSeenFlag = true;
+            SendReward(seeFlagReward);
+        }
+        else if ((knownMyTeamScore != GetMyTeamScore()) || (knownEnemyFlagTaken && !EnemyFlagTaken)) //Otherwise see if flag pickup been reset
+        {
+            knownSeenFlag = false;
+        }
 
         //If just picked up flag then give reward
         if (HasFlag && !knownHasFlag && (knownHasFlag = true))
