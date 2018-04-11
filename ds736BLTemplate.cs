@@ -8,8 +8,9 @@ using System.Net;
 using System;
 using UnityEngine.UI;
 
-public class ds736BLTemplate : BasicBehaviourLibrary {
-    private int framesPerMsg = 4;
+public class ds736BLTemplate : BasicBehaviourLibrary
+{
+    private int framesPerMsg = 10;
     private int frameCounter = 1;
     private NetworkToServer networkInstance = new NetworkToServer();
     private bool move = false;
@@ -35,6 +36,8 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private bool knownHasFlag = false;
     private bool knownSeenFlag = false;
     private bool knownEnemyFlagTaken = false;
+    private int knownMyTeamScore = 0;
+    private bool knownEnemyFlagAtBase = true;
 
     private int lowHealth = 30;
 
@@ -43,6 +46,8 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     private int deathReward = -5;
     private int tookDamageReward = -1;
     private int seeFlagReward = 1;
+
+    private float distanceRewardMultiplier = 0.01f;
 
     /*
      * Function: MovetoFlag
@@ -374,6 +379,24 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
     }
 
     /*
+     * Function: SendReward
+     * ----------------------------
+     *   Sends the reward to the server
+     * 
+     *   reward: A float representing the reward for an action
+     * 
+     */
+    private void SendReward(float reward)
+    {
+        //Get current state
+        string state = GetState();
+
+        prevState = state;
+        //Send reward and state
+        networkInstance.SendData("REWARD " + reward.ToString() + " " + state);
+    }
+
+    /*
      * Function: SendState
      * ----------------------------
      *   Sends the current state of the game to the server
@@ -491,6 +514,32 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
 
         return teamScore;
     }
+
+    /*
+     * Function: GetDistanceToEnemyBase
+     * ----------------------------
+     *   A method that gets the distance to enemy base
+     * 
+     *   return: a flaot of the size of the distance between the agent and enemy base
+     * 
+     */
+    private float GetDistanceToEnemyBase()
+    {
+        float distance = 0.0f;
+
+        Vector3 playerLocation = CurrentLocation;
+
+        Vector3 enemyBase = EnemySpawnLocation;
+
+        double diffX = Math.Pow(CurrentLocation.x - EnemySpawnLocation.x, 2.0f);
+
+        double diffZ = Math.Pow(CurrentLocation.z - EnemySpawnLocation.z, 2.0f);
+
+        distance = (float) Math.Sqrt(diffX + diffZ);
+
+        return distance;
+    }
+
     /*
      * Function: SendScore
      * ----------------------------
@@ -897,6 +946,42 @@ public class ds736BLTemplate : BasicBehaviourLibrary {
         else if ((knownMyTeamScore != GetMyTeamScore()) || (knownEnemyFlagTaken && !EnemyFlagTaken)) //Otherwise see if flag pickup been reset
         {
             knownSeenFlag = false;
+        }
+
+        //If flag at enemy base, then send negative reward based on distance
+        if (knownEnemyFlagAtBase)
+        {
+            knownEnemyFlagAtBase = false;
+        }
+        else if (knownMyTeamScore != GetMyTeamScore())
+        {
+            knownEnemyFlagAtBase = true;
+            frameCounter = 1;
+        }
+        
+        //If enemy flag at their base, then punish agent for not being next to it, to encourage movement.
+        if (knownEnemyFlagAtBase)
+        {
+            frameCounter++;
+            if (frameCounter % framesPerMsg == 0)
+            {
+                float distToFlag = GetDistanceToEnemyBase();
+                float reward = (distToFlag * distanceRewardMultiplier);
+                SendReward(-reward);
+                frameCounter = 1;
+            }
+        }
+
+        //Update known team score
+        if (knownMyTeamScore != GetMyTeamScore())
+        {
+            knownMyTeamScore = GetMyTeamScore();
+        }
+        
+        //Update known if enemy flag is taken
+        if (knownEnemyFlagTaken && !EnemyFlagTaken)
+        {
+            knownEnemyFlagTaken = false;
         }
 
         //If just picked up flag then give reward
